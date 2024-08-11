@@ -2,15 +2,28 @@ addEventListener('fetch', (event) => {
     event.respondWith(handleRequest(event.request));
 });
 
-const targetURLs = TARGET_URL.split(',');
+//const targetURLs = TARGET_URL.split(',');
+const TARGET_URLs = env.TARGET_URL
+const targetURLs = TARGET_URLs.split(',');
 const maxRetries = 5;
+
+let currentIndex = 0;
+function getNextURL() {
+  const url = targetURLs[currentIndex];
+  currentIndex = (currentIndex + 1) % targetURLs.length;
+  return url;
+}
+
+// 在 handleRequest 函数中使用
+//const targetURL = getNextURL();
 
 async function handleRequest(originalRequest) {
     let response;
 
     for (let retry = 0; retry < maxRetries; retry++) {
         const randomIndex = Math.floor(Math.random() * targetURLs.length);
-        const targetURL = targetURLs[randomIndex];
+        //const targetURL = targetURLs[randomIndex];
+		const targetURL = getNextURL();
         const userURI = new URL(originalRequest.url).pathname;
         const proxyURL = targetURL + userURI;
         const headers = new Headers(originalRequest.headers);
